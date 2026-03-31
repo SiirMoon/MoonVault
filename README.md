@@ -15,6 +15,13 @@ Inspirado no yt-dlp-GUI: https://github.com/kannagi0303/yt-dlp-gui
 
 ---
 
+## Screenshots
+
+| Screenshot Downloader (Dark Mode) | Screenshot Fila (Dark Mode) |
+|---------|---------|
+| ![Downloader](screenshots/MoonVault_Downloader.png) | ![Fila](screenshots/MoonVault_Fila.png) |
+
+---
 ## Funcionalidades
 
 **Interface**
