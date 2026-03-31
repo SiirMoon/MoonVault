@@ -7,6 +7,8 @@
 
 MoonVault é um aplicativo desktop para download de vídeos e áudios construído com Electron, FFmpeg e [yt-dlp](https://github.com/yt-dlp/yt-dlp). Ele oferece uma interface visual para configurar e executar downloads de centenas de plataformas, incluindo YouTube, Instagram, Twitter (X), TikTok e outras. Este é um "projeto de garagem", não tenho intenção de lucrar com o aplicativo, nem de torná-lo popular, até porque já existem muitos outros que fazem exatamente a mesma coisa. Ele foi feito com carinho para uso pessoal, porque eu queria uma interface bonita e algumas funções específicas, mas decidi deixá-lo disponível publicamente para amigos e quem encontrar e quiser baixar.
 
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-PASSING-brightgreen?style=flat-square)](https://www.virustotal.com/gui/file/80319652e43105030d1646fe45cbfab17c32797a69fdde4aef4cb01232c22353/detection)
+
 [![Electron.js](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white)](https://www.electronjs.org/)
 [![FFmpeg](https://shields.io/badge/FFmpeg-%23171717.svg?logo=ffmpeg&style=for-the-badge&labelColor=171717&logoColor=5cb85c)](https://github.com/BtbN/FFmpeg-Builds)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/SiirMoon/MoonVault/releases/)
