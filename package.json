@@ -1,6 +1,6 @@
 {
   "name": "moonvault",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MoonVault — Video & Audio Downloader",
   "main": "main.js",
   "scripts": {
