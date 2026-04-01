@@ -1,6 +1,3 @@
-> [!NOTE]
-> Em breve irei disponivilizar todo o código do programa aqui neste mesmo repositório, estou apenas organizando e comentando pontos importantes para que fique bem explicado.
-
 <p align="center">
   <img src="logos/moonvault-logo.png" alt="Logo MoonVault - Downloader" width="300">
 </p>
