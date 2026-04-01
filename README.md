@@ -14,7 +14,8 @@ MoonVault é um aplicativo desktop para download de vídeos e áudios construíd
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/SiirMoon/MoonVault/releases/)
 
 Inspirado no yt-dlp-GUI: https://github.com/kannagi0303/yt-dlp-gui
-
+> [!TIP]
+> Cheque a [Wiki](https://github.com/SiirMoon/MoonVault/wiki) para esclarecer possíveis dúvidas!
 ---
 
 ## Screenshots
@@ -91,6 +92,9 @@ O MoonVault suporta qualquer plataforma que o yt-dlp suporte. A lista completa e
 https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md
 
 ---
+
+
+
 
 ## Licença
 
