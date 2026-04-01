@@ -1,0 +1,41 @@
+# Node
+node_modules/          
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json   
+.npmrc   
+
+# Electron Build Output
+dist/                  
+out/                   
+
+# Binários externos (yt-dlp, ffmpeg) 
+bin/yt-dlp
+bin/yt-dlp.exe
+bin/ffmpeg
+bin/ffmpeg.exe
+bin/ffprobe
+bin/ffprobe.exe
+
+# Dados do usuário / Electron runtime
+*.log
+.DS_Store              
+Thumbs.db              
+desktop.ini
+
+# Segredos e variáveis de ambiente 
+.env
+.env.local
+.env.*
+
+# IDEs e editores 
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache e temporários 
+.cache/
+*.tmp
+*.temp

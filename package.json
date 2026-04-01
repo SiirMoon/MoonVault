@@ -1,0 +1,82 @@
+{
+  "name": "moonvault",
+  "version": "1.0.1",
+  "description": "MoonVault — Video & Audio Downloader",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
+    "publish:win": "electron-builder --win --publish always",
+    "publish:linux": "electron-builder --linux --publish always"
+  },
+  "keywords": [
+    "youtube",
+    "downloader",
+    "yt-dlp",
+    "electron",
+    "baixador",
+    "twitter"
+  ],
+  "author": "MoonVault",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.9",
+    "electron-log": "^5.2.0"
+  },
+  "build": {
+    "appId": "com.moonvault.app",
+    "productName": "MoonVault",
+    "publish": {
+      "provider": "github",
+      "owner": "siirmoon",
+      "repo": "MoonVault"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin/",
+        "to": "bin/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis",     "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "renderer/assets/icon.ico",
+      "requestedExecutionLevel": "asInvoker"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MoonVault",
+      "runAfterFinish": true
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "renderer/assets/icon.png"
+    }
+  }
+}

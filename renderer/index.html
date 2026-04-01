@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MoonVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- personalização da titlebar -->
+  <div class="titlebar" id="titlebar">
+    <div class="titlebar-drag">
+      <div class="app-logo">
+        <img src="assets/logo-icon.png" class="titlebar-logo-icon" alt="">
+        <img src="assets/logo-name.png" class="titlebar-logo-name" alt="MoonVault">
+      </div>
+    </div>
+    <!-- velocidade de download na titlebar, some quando fica "idle" -->
+    <div class="titlebar-speed" id="titlebar-speed" style="display:none">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+        <polyline points="17 6 23 6 23 12"/>
+      </svg>
+      <span id="titlebar-speed-value">0 B/s</span>
+    </div>
+    <div class="titlebar-controls">
+      <!-- mudança de tema -->
+      <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Alternar modo claro/escuro">
+        <div class="theme-toggle-track">
+          <div class="theme-toggle-thumb">
+            <!-- Lua (dark) -->
+            <svg class="theme-icon moon-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+              <path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>
+            </svg>
+            <!-- Sol (light) -->
+            <svg class="theme-icon sun-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </div>
+        </div>
+      </button>
+      <button class="ctrl-btn console-toggle-btn" id="console-toggle-btn" onclick="toggleConsole()" title="Console de Eventos">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+      </button>
+      <button class="ctrl-btn" onclick="window.api.minimize()" title="Minimizar">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5.5" width="12" height="1" fill="currentColor"/></svg>
+      </button>
+      <button class="ctrl-btn" onclick="window.api.maximize()" title="Maximizar">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>
+      </button>
+      <button class="ctrl-btn close-btn" onclick="window.api.close()" title="Fechar">
+        <svg width="12" height="12" viewBox="0 0 12 12"><line x1="1" y1="1" x2="11" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="11" y1="1" x2="1" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="downloader" onclick="switchPage('downloader')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Downloader</span>
+        </button>
+        <button class="nav-item" data-page="history" onclick="switchPage('history')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          <span>Histórico</span>
+        </button>
+        <button class="nav-item" data-page="queue" onclick="switchPage('queue')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          <span>Fila</span>
+          <span class="queue-badge" id="queue-badge" style="display:none">0</span>
+        </button>
+        <button class="nav-item" data-page="settings" onclick="switchPage('settings')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Configurações</span>
+        </button>
+        <button class="nav-item" data-page="about" onclick="switchPage('about')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Sobre</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="ytdlp-status" id="ytdlp-status">
+          <div class="status-dot"></div>
+          <span id="ytdlp-version">Verificando yt-dlp...</span>
+        </div>
+        <div class="app-version-row">
+          <span id="app-version">v2.0</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- página "downloader" -->
+      <section class="page active" id="page-downloader">
+        <div class="page-header">
+          <h1>Downloader</h1>
+          <p class="page-subtitle">Cole o link, escolha a qualidade e baixe</p>
+        </div>
+
+        <!-- primeiro passo -->
+        <div class="step-label"><span class="step-num">1</span> Cole o link do vídeo</div>
+        <div class="url-card">
+          <div class="url-input-row">
+            <div class="url-field">
+              <svg class="url-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="url" id="url-input" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
+              <button class="clear-url-btn" id="clear-url" onclick="clearUrl()" title="Limpar URL">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <button class="btn-analyze" id="analyze-btn" onclick="analyzeUrl()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <span>Analisar</span>
+            </button>
+          </div>
+          <div class="cookie-notice" id="cookie-notice" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Sites como Instagram/Twitter podem precisar de cookies. <button onclick="switchPage('settings')">Configurar cookies →</button></span>
+          </div>
+        </div>
+        <div class="analyze-loading" id="analyze-loading" style="display:none">
+          <div class="spinner"></div>
+          <span>Analisando URL, aguarde...</span>
+        </div>
+        <div class="error-card" id="error-card" style="display:none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          <span id="error-message"></span>
+        </div>
+
+        <!-- informações do vídeo + opções de download -->
+        <div class="results-area" id="results-area" style="display:none">
+          <div class="step-label" id="step-label-2"><span class="step-num">2</span> Informações do vídeo</div>
+
+          <!-- box para downloads de playlists (exibido no lugar dos metadados do vídeo quando a URL for uma playlist) -->
+          <div class="playlist-card" id="playlist-card" style="display:none">
+            <div class="playlist-card-header">
+              <div class="playlist-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </div>
+              <div class="playlist-meta">
+                <div class="playlist-title" id="playlist-title">Playlist</div>
+                <div class="playlist-count" id="playlist-count">Carregando itens...</div>
+              </div>
+              <div class="playlist-header-actions">
+                <button class="btn-select-all" onclick="selectAllPlaylistItems(true)">Todos</button>
+                <button class="btn-select-all" onclick="selectAllPlaylistItems(false)">Nenhum</button>
+              </div>
+            </div>
+            <div class="playlist-loading" id="playlist-loading">
+              <div class="spinner"></div>
+              <span>Carregando itens da playlist...</span>
+            </div>
+            <div class="playlist-items" id="playlist-items"></div>
+            <div class="playlist-footer" id="playlist-footer" style="display:none">
+              <div class="playlist-footer-options">
+                <div class="playlist-quality-row">
+                  <span class="section-label">Modo</span>
+                  <div class="playlist-mode-pills">
+                    <button class="fmt-pill active" id="pl-mode-video" onclick="setPlaylistMode('video')">Vídeo</button>
+                    <button class="fmt-pill" id="pl-mode-audio" onclick="setPlaylistMode('audio')">Áudio</button>
+                  </div>
+                </div>
+                <div class="playlist-quality-row" id="pl-video-quality-row">
+                  <span class="section-label">Qualidade</span>
+                  <select id="pl-quality-preset" class="pl-quality-select">
+                    <option value="bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best">Melhor disponível</option>
+                    <option value="bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best">Até 1080p</option>
+                    <option value="bestvideo[height<=720][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best">Até 720p</option>
+                    <option value="bestvideo[height<=480][ext=mp4]+bestaudio[ext=m4a]/bestvideo[height<=480]+bestaudio/best">Até 480p</option>
+                    <option value="worstvideo+worstaudio/worst">Menor tamanho</option>
+                  </select>
+                </div>
+                <div class="playlist-quality-row" id="pl-audio-format-row" style="display:none">
+                  <span class="section-label">Formato</span>
+                  <div class="playlist-mode-pills">
+                    <button class="fmt-pill active" data-plfmt="mp3" onclick="setPlaylistAudioFmt(this)">MP3</button>
+                    <button class="fmt-pill" data-plfmt="m4a" onclick="setPlaylistAudioFmt(this)">M4A</button>
+                    <button class="fmt-pill" data-plfmt="opus" onclick="setPlaylistAudioFmt(this)">OPUS</button>
+                    <button class="fmt-pill" data-plfmt="flac" onclick="setPlaylistAudioFmt(this)">FLAC</button>
+                  </div>
+                </div>
+              </div>
+              <div class="playlist-footer-bottom">
+                <span class="playlist-selected-count" id="playlist-selected-count"></span>
+                <button class="btn-add-playlist-queue" onclick="addPlaylistToQueue()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Adicionar selecionados à Fila
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- informações do vídeo -->
+          <div class="video-meta-card" id="video-meta-card">
+            <div class="video-thumb-wrap">
+              <img id="video-thumb" src="" alt="Thumbnail" onerror="this.style.display='none'">
+              <div class="thumb-overlay">
+                <span class="duration-badge" id="video-duration"></span>
+              </div>
+            </div>
+            <div class="video-info">
+              <h2 class="video-title" id="video-title"></h2>
+              <div class="video-meta-row">
+                <span class="meta-chip" id="video-channel">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span id="channel-name"></span>
+                </span>
+                <span class="meta-chip" id="video-views">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <span id="views-count"></span>
+                </span>
+                <span class="meta-chip" id="video-date">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span id="upload-date"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- painel com as opções de download -->
+          <div class="download-panel" id="download-panel">
+            <div class="step-label" id="step-label-3" style="margin-bottom:16px"><span class="step-num">3</span> Escolha o formato e baixe</div>
+            <div class="mode-toggle-row">
+              <div class="mode-toggle">
+                <button class="mode-btn active" id="mode-video" onclick="setMode('video')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                  </svg>
+                  Vídeo
+                </button>
+                <button class="mode-btn" id="mode-audio" onclick="setMode('audio')">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                  </svg>
+                  Somente Áudio
+                </button>
+              </div>
+
+              <!-- opções extras -->
+              <div class="extra-opts">
+                <label class="opt-toggle" title="Incorporar capítulos no arquivo">
+                  <input type="checkbox" id="opt-chapters">
+                  <span class="toggle-pill"></span>
+                  <span>Capítulos</span>
+                </label>
+                <label class="opt-toggle" title="Salvar thumbnail">
+                  <input type="checkbox" id="opt-thumbnail">
+                  <span class="toggle-pill"></span>
+                  <span>Thumbnail</span>
+                </label>
+                <label class="opt-toggle" title="Salvar descrição em .txt">
+                  <input type="checkbox" id="opt-description">
+                  <span class="toggle-pill"></span>
+                  <span>Descrição</span>
+                </label>
+                <label class="opt-toggle" title="Não sobrescrever arquivos que já existem na pasta">
+                  <input type="checkbox" id="opt-no-overwrites" checked>
+                  <span class="toggle-pill"></span>
+                  <span>Não sobrescrever</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- legendas (apenas vídeos) -->
+            <div class="subs-section" id="subs-section">
+              <div class="subs-header">
+                <label class="opt-toggle">
+                  <input type="checkbox" id="opt-subs" onchange="toggleSubsPanel()">
+                  <span class="toggle-pill"></span>
+                  <span>Baixar Legendas</span>
+                </label>
+              </div>
+              <div class="subs-langs" id="subs-langs" style="display:none">
+                <div id="langs-list" class="langs-list"></div>
+              </div>
+            </div>
+
+            <!-- seleção de formatos para audios -->
+            <div class="format-section" id="audio-format-section" style="display:none">
+              <span class="section-label">Formato de Saída</span>
+              <div class="format-pills" id="audio-formats">
+                <button class="fmt-pill active" data-fmt="mp3" onclick="selectAudioFmt(this)">MP3</button>
+                <button class="fmt-pill" data-fmt="m4a" onclick="selectAudioFmt(this)">M4A</button>
+                <button class="fmt-pill" data-fmt="opus" onclick="selectAudioFmt(this)">OPUS</button>
+                <button class="fmt-pill" data-fmt="flac" onclick="selectAudioFmt(this)">FLAC</button>
+                <button class="fmt-pill" data-fmt="wav" onclick="selectAudioFmt(this)">WAV</button>
+              </div>
+            </div>
+            <!-- tabela de qualidades disponíveis -->
+            <div class="quality-section">
+              <span class="section-label">Qualidade Disponível</span>
+              <div class="quality-table-wrap">
+                <table class="quality-table" id="quality-table">
+                  <thead>
+                    <tr>
+                      <th>Sel.</th>
+                      <th>Qualidade</th>
+                      <th>Ext</th>
+                      <th>Resolução</th>
+                      <th>Tamanho</th>
+                      <th>Codec</th>
+                      <th>FPS</th>
+                      <th>HDR</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quality-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="download-action-row">
+              <!-- salvar no histórico, fica ativo como padrão -->
+              <div class="dl-history-toggle-row">
+                <label class="opt-toggle">
+                  <input type="checkbox" id="opt-save-history" checked>
+                  <span class="toggle-pill"></span>
+                  <span>Salvar no histórico</span>
+                </label>
+              </div>
+              <!-- renomear -->
+              <div class="rename-row" id="rename-row">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--t3)">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                <input type="text" id="rename-input" class="rename-input"
+                       placeholder="Nome do arquivo (opcional — deixe vazio para usar o título original)"
+                       oninput="onRenameInput(this)">
+                <button class="btn-rename-clear" id="btn-rename-clear"
+                        onclick="clearRename()" title="Limpar nome" style="display:none">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="output-folder-row">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--t3)">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+                <span id="output-path-label" class="output-path-text">Carregando pasta...</span>
+                <span id="disk-space-label" class="disk-space-label"></span>
+                <button class="btn-pick-folder" id="btn-pick-folder" onclick="pickDownloadFolder()" title="Escolher pasta para este download">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Trocar pasta
+                </button>
+                <button class="btn-reset-folder" id="btn-reset-folder" onclick="resetDownloadFolder()" title="Voltar para a pasta padrão" style="display:none">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="action-btns">
+                <button class="btn-add-queue" id="queue-btn" onclick="addToQueue()" title="Adicionar à fila de downloads">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Adicionar à Fila
+                </button>
+                <button class="btn-download" id="download-btn" onclick="startDownload()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  <span>Iniciar Download</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- downloads ativos -->
+        <div class="active-downloads" id="active-downloads" style="display:none">
+          <div class="section-label-row">
+            <span class="section-label">Downloads Ativos</span>
+          </div>
+          <div id="downloads-list"></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-history">
+        <div class="page-header">
+          <h1>Histórico</h1>
+          <p class="page-subtitle">Downloads recentes</p>
+        </div>
+        <div class="history-toolbar">
+          <div class="history-search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="history-search" placeholder="Buscar no histórico..." oninput="filterHistory(this.value)">
+          </div>
+          <div class="history-toolbar-right">
+            <span class="history-count" id="history-count"></span>
+            <button class="btn-clear-history" onclick="clearHistory()" title="Limpar histórico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+              Limpar
+            </button>
+          </div>
+        </div>
+        <div class="history-list" id="history-list">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <p>Nenhum download no histórico ainda</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- página de fila -->
+      <section class="page" id="page-queue">
+        <div class="page-header">
+          <h1>Fila de Downloads</h1>
+          <p class="page-subtitle">Adicione vídeos à fila e baixe todos de uma vez</p>
+        </div>
+
+        <div class="queue-toolbar">
+          <div class="queue-toolbar-left">
+            <span class="queue-count-label" id="queue-count-label">0 itens na fila</span>
+          </div>
+          <div class="queue-toolbar-right">
+            <button class="btn-queue-clear" id="btn-queue-clear" onclick="clearQueue()" disabled>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+              Limpar Fila
+            </button>
+            <button class="btn-start-queue" id="btn-start-queue" onclick="startQueue()" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <span id="btn-start-queue-label">Iniciar Fila</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- progress bar -->
+        <div class="queue-overall-progress" id="queue-overall-progress" style="display:none">
+          <div class="queue-progress-track">
+            <div class="queue-progress-fill" id="queue-progress-fill"></div>
+          </div>
+          <span class="queue-progress-label" id="queue-progress-label">0 / 0 concluídos</span>
+        </div>
+        <div id="queue-list">
+          <div class="empty-state" id="queue-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+              <line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+            <p>Nenhum item na fila</p>
+            <span class="empty-hint">Analise um link no Downloader e clique em "Adicionar à Fila"</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── página das configurações ── -->
+      <section class="page" id="page-settings">
+        <div class="page-header">
+          <h1>Configurações</h1>
+          <p class="page-subtitle">Personalize o comportamento do app</p>
+        </div>
+
+        <div class="settings-grid">
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+              </svg>
+              <h3>Pastas de Download</h3>
+            </div>
+            <div class="settings-item">
+              <label>Pasta para Vídeos</label>
+              <div class="path-row">
+                <input type="text" id="setting-video-path" readonly placeholder="Selecione a pasta...">
+                <button class="btn-browse" onclick="selectFolder('videoDownloadPath', 'setting-video-path')">Procurar</button>
+              </div>
+            </div>
+            <div class="settings-item">
+              <label>Pasta para Áudios</label>
+              <div class="path-row">
+                <input type="text" id="setting-audio-path" readonly placeholder="Selecione a pasta...">
+                <button class="btn-browse" onclick="selectFolder('audioDownloadPath', 'setting-audio-path')">Procurar</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+              <h3>Formatos Preferidos</h3>
+            </div>
+            <div class="settings-item">
+              <label>Formato de Vídeo Padrão</label>
+              <select id="setting-video-format" onchange="saveSettingImmediate('preferredVideoFormat', this.value)">
+                <option value="mp4">MP4 (Mais compatível)</option>
+                <option value="webm">WebM</option>
+                <option value="mkv">MKV</option>
+                <option value="mov">MOV</option>
+              </select>
+            </div>
+            <div class="settings-item">
+              <label>Formato de Áudio Padrão</label>
+              <select id="setting-audio-format" onchange="saveSettingImmediate('preferredAudioFormat', this.value)">
+                <option value="mp3">MP3 (Universal)</option>
+                <option value="m4a">M4A (Apple)</option>
+                <option value="opus">Opus (Alta qualidade)</option>
+                <option value="flac">FLAC (Sem perda)</option>
+                <option value="wav">WAV (Sem compressão)</option>
+              </select>
+            </div>
+            <div class="settings-item">
+              <label>Downloads Simultâneos na Fila</label>
+              <select id="setting-max-concurrent" onchange="saveSettingImmediate('maxConcurrent', parseInt(this.value))">
+                <option value="1">1 — Sequencial (padrão)</option>
+                <option value="2">2 — Simultâneos</option>
+                <option value="3">3 — Simultâneos</option>
+                <option value="4">4 — Simultâneos</option>
+                <option value="5">5 — Simultâneos</option>
+              </select>
+              <span class="field-hint">Número de itens da fila baixados ao mesmo tempo. Valores maiores usam mais CPU e rede.</span>
+            </div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <h3>Autenticação / Cookies</h3>
+            </div>
+            <p class="settings-desc">Necessário para sites protegidos como Instagram, Twitter/X, Facebook, etc.</p>
+
+            <div class="settings-item">
+              <label>Arquivo cookies.txt</label>
+              <div class="path-row">
+                <input type="text" id="setting-cookies-file" readonly placeholder="Nenhum arquivo selecionado">
+                <button class="btn-browse" onclick="selectCookiesFile()">Procurar</button>
+              </div>
+              <span class="field-hint">Exporte com extensão "Get cookies.txt LOCALLY" do seu navegador</span>
+            </div>
+
+            <div class="settings-item">
+              <label>Cookies do Navegador</label>
+              <select id="setting-cookies-browser" onchange="saveSettingImmediate('cookiesFromBrowser', this.value)">
+                <option value="">Não usar</option>
+                <option value="chrome">Chrome</option>
+                <option value="firefox">Firefox</option>
+                <option value="chromium">Chromium</option>
+                <option value="brave">Brave</option>
+                <option value="edge">Edge</option>
+                <option value="safari">Safari</option>
+                <option value="opera">Opera</option>
+              </select>
+              <span class="field-hint">Usa cookies diretamente do navegador instalado (mais fácil)</span>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <h3>Informações do Sistema</h3>
+            </div>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">yt-dlp</span>
+                <span class="info-value" id="info-ytdlp">Verificando...</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">ffmpeg</span>
+                <span class="info-value" id="info-ffmpeg">Incluído (ffmpeg-static)</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Versão do App</span>
+                <span class="info-value" id="info-app-version">—</span>
+              </div>
+            </div>
+            <div class="install-hint">
+              <p>Para instalar o yt-dlp:</p>
+              <code>pip install yt-dlp</code>
+              <span class="or-divider">ou</span>
+              <code>winget install yt-dlp</code>
+            </div>
+
+            <!-- atualização do app -->
+            <div class="update-section">
+              <div class="update-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Verifique atualizações do MoonVault para obter novas funcionalidades e correções.</span>
+              </div>
+              <button class="btn-update-ytdlp" id="btn-check-app-update" onclick="checkAppUpdate()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span id="btn-check-app-update-label">Verificar atualizações do app</span>
+              </button>
+              <div class="update-log" id="app-update-log" style="display:none"></div>
+            </div>
+
+            <!-- atualização do yt-dlp -->
+            <div class="update-section">
+              <div class="update-info">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Manter o yt-dlp atualizado corrige erros como YouTube 403 e "Signature solving failed"</span>
+              </div>
+              <button class="btn-update-ytdlp" id="btn-update-ytdlp" onclick="updateYtDlp()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span id="update-ytdlp-label">Atualizar yt-dlp agora</span>
+              </button>
+              <div class="update-log" id="update-log" style="display:none"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── página sobre ── -->
+      <section class="page" id="page-about">
+        <div class="about-wrap">
+
+          <!-- logo -->
+          <div class="about-logo-wrap">
+            <img src="assets/about-logo.png" class="about-logo-img" alt="MoonVault">
+          </div>
+
+          <!-- descrição -->
+          <p class="about-description">
+            MoonVault é um projeto de garagem. Não tenho intenção de lucrar com o aplicativo,
+            nem de torná-lo popular, até porque já existem muitos outros que fazem exatamente
+            a mesma coisa. Ele foi feito com carinho para uso pessoal, porque eu queria uma
+            interface bonita e algumas funções específicas, mas decidi deixá-lo disponível
+            publicamente para quem encontrar e quiser baixar.
+          </p>
+
+          <!-- links redes sociais -->
+          <div class="about-links">
+            <a class="about-link-btn" href="#" onclick="window.api.openUrl('https://github.com/SiirMoon'); return false;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              GitHub
+            </a>
+            <a class="about-link-btn" href="#" onclick="window.api.openUrl('https://www.youtube.com/@siirmoon'); return false;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              YouTube
+            </a>
+            <a class="about-link-btn" href="#" onclick="window.api.openUrl('https://x.com/SiirMoon'); return false;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              X / Twitter
+            </a>
+          </div>
+
+          <div class="about-footer">
+            <p class="about-made-with">Feito com carinho utilizando Electron, yt-dlp e FFmpeg.</p>
+            <p class="about-support">Problemas? Abra um issue no GitHub ou entre em contato pelo Twitter/X.</p>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- console (aparece ao lado do botão "minimizar") -->
+  <div class="console-overlay" id="console-overlay" onclick="closeConsole()"></div>
+  <div class="console-panel" id="console-panel">
+    <div class="console-header">
+      <div class="console-header-left">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+        </svg>
+        <span>Console de Eventos</span>
+      </div>
+      <div class="console-header-right">
+        <button class="console-clear-btn" onclick="clearConsole()" title="Limpar console">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Limpar
+        </button>
+        <button class="console-close-btn" onclick="closeConsole()" title="Fechar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="console-body" id="console-body">
+      <div class="console-empty">Aguardando eventos de download...</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
