@@ -11,10 +11,28 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - run: npm ci
+
+      - name: Baixar yt-dlp e ffmpeg (Windows)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path bin
+
+          # yt-dlp
+          Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "bin\yt-dlp.exe"
+
+          # ffmpeg
+          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile "ffmpeg.zip"
+          Expand-Archive -Path "ffmpeg.zip" -DestinationPath "ffmpeg_tmp" -Force
+          $ffmpeg = Get-ChildItem -Path "ffmpeg_tmp" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
+          Copy-Item $ffmpeg.FullName -Destination "bin\ffmpeg.exe"
+          Remove-Item -Recurse -Force "ffmpeg_tmp", "ffmpeg.zip"
+
       - name: Build Windows (installer + portable)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -24,10 +42,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
       - run: npm ci
+
+      - name: Baixar yt-dlp e ffmpeg (Linux)
+        run: |
+          mkdir -p bin
+
+          curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o bin/yt-dlp
+          chmod +x bin/yt-dlp
+
+          sudo apt-get install -y ffmpeg
+          cp $(which ffmpeg) bin/ffmpeg
+          chmod +x bin/ffmpeg
+
       - name: Build Linux AppImage
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
