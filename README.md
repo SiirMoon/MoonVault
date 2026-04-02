@@ -7,6 +7,7 @@ MoonVault é um aplicativo desktop para download de vídeos e áudios construíd
 [![Electron.js](https://img.shields.io/badge/Electron-191970?style=for-the-badge&logo=Electron&logoColor=white)](https://www.electronjs.org/)
 [![FFmpeg](https://shields.io/badge/FFmpeg-%23171717.svg?logo=ffmpeg&style=for-the-badge&labelColor=171717&logoColor=5cb85c)](https://github.com/BtbN/FFmpeg-Builds)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/SiirMoon/MoonVault/releases/)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/SiirMoon/MoonVault/releases/)
 
 > [!WARNING]
 > Ao baixar a executar o aplicativo, você receberá um aviso do windows alegando que protegeu seu PC ao não deixar abrir o aplicativo, clique em "Executar assim mesmo". Esse é um certificado pago e não tem como bancar.
