@@ -9,12 +9,22 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Compilar renderer React
+        run: npm run build:renderer
+
       - name: Baixar yt-dlp e ffmpeg (Windows)
         shell: pwsh
         run: |
@@ -25,30 +35,40 @@ jobs:
           $ffmpeg = Get-ChildItem -Path "ffmpeg_tmp" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
           Copy-Item $ffmpeg.FullName -Destination "bin\ffmpeg.exe"
           Remove-Item -Recurse -Force "ffmpeg_tmp", "ffmpeg.zip"
+
       - name: Build Windows (installer + portable)
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run publish:win
+        run: npm run publish:win:ci
 
   build-linux:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - name: Baixar yt-dlp e ffmpeg (Linux)
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Compilar renderer React
+        run: npm run build:renderer
+
+      - name: Baixar yt-dlp e instalar ffmpeg (Linux)
         run: |
           mkdir -p bin
           curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o bin/yt-dlp
           chmod +x bin/yt-dlp
-          curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o ffmpeg.tar.xz
-          tar -xf ffmpeg.tar.xz
-          cp ffmpeg-*-amd64-static/ffmpeg bin/ffmpeg
+          sudo apt-get install -y ffmpeg
+          cp $(which ffmpeg) bin/ffmpeg
           chmod +x bin/ffmpeg
-          rm -rf ffmpeg-*-amd64-static ffmpeg.tar.xz
+
       - name: Build Linux AppImage
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run publish:linux
+        run: npm run publish:linux:ci

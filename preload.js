@@ -1,60 +1,66 @@
 const { contextBridge, ipcRenderer } = require('electron');
- 
-// Expõe uma API restrita para o processo de renderização.
-// Nada do Node ou do Electron vaza, apenas estes métodos explicitamente definidos.
+
 contextBridge.exposeInMainWorld('api', {
- 
-  // Controles da janela
+  // Window controls
   minimize: () => ipcRenderer.send('window-minimize'),
   maximize: () => ipcRenderer.send('window-maximize'),
   close:    () => ipcRenderer.send('window-close'),
- 
-  // Configurações
-  getSettings:      ()        => ipcRenderer.invoke('get-settings'),
-  saveSettings:     (s)       => ipcRenderer.invoke('save-settings', s),
-  selectFolder:     (key)     => ipcRenderer.invoke('select-folder', key),
-  selectFolderTemp: ()        => ipcRenderer.invoke('select-folder-temp'),
-  selectCookiesFile:()        => ipcRenderer.invoke('select-cookies-file'),
- 
-  // Análise de URL
+  
+  // Settings
+  getSettings:       ()    => ipcRenderer.invoke('get-settings'),
+  saveSettings:      (s)   => ipcRenderer.invoke('save-settings', s),
+  selectFolder:      (key) => ipcRenderer.invoke('select-folder', key),
+  selectFolderTemp:  ()    => ipcRenderer.invoke('select-folder-temp'),
+  selectCookiesFile: ()    => ipcRenderer.invoke('select-cookies-file'),
+
+  // Analysis
   analyzeUrl:      (url) => ipcRenderer.invoke('analyze-url', url),
   analyzePlaylist: (url) => ipcRenderer.invoke('analyze-playlist', url),
- 
+  cancelAnalyze:   ()    => ipcRenderer.invoke('cancel-analyze'),
+
   // Downloads
   startDownload:  (opts) => ipcRenderer.invoke('start-download', opts),
   cancelDownload: (id)   => ipcRenderer.invoke('cancel-download', id),
- 
-  // Sistema de arquivos
+
+  // Shell
   openFolder: (path) => ipcRenderer.invoke('open-folder', path),
   openFile:   (path) => ipcRenderer.invoke('open-file', path),
   openUrl:    (url)  => ipcRenderer.invoke('open-url', url),
- 
-  // Informações do disco
+
+  // Utilities
   getDiskSpace:    (path) => ipcRenderer.invoke('get-disk-space', path),
   getAppVersion:   ()     => ipcRenderer.invoke('get-app-version'),
- 
-  // Armazenamento do histórico
-  clearHistoryStorage: () => ipcRenderer.invoke('clear-history-storage'),
- 
-  // Persistência da fila
+  getRuntimeVersions: () => ({
+  electron: process.versions.electron || null,
+  node: process.versions.node || null,
+  chrome: process.versions.chrome || null,
+}),
+  showConfirm: (opts) => ipcRenderer.invoke('show-confirm', opts),
+
+  // Queue persistence
   saveQueue: (items) => ipcRenderer.invoke('save-queue', items),
   loadQueue: ()      => ipcRenderer.invoke('load-queue'),
- 
-  // yt-dlp
-  checkYtDlp:  () => ipcRenderer.invoke('check-ytdlp'),
-  updateYtDlp: () => ipcRenderer.invoke('update-ytdlp'),
- 
-  // Atualizações do app
-  checkForUpdates:  ()   => ipcRenderer.invoke('check-for-updates'),
- 
-  // Assinaturas de eventos
-  onDownloadProgress: (cb) => ipcRenderer.on('download-progress',  (_, d) => cb(d)),
-  onDownloadComplete: (cb) => ipcRenderer.on('download-complete',  (_, d) => cb(d)),
-  onDownloadFailed:   (cb) => ipcRenderer.on('download-failed',    (_, d) => cb(d)),
-  onDownloadError:    (cb) => ipcRenderer.on('download-error',     (_, d) => cb(d)),
-  onConsoleLog:       (cb) => ipcRenderer.on('console-log',        (_, d) => cb(d)),
-  onYtdlpUpdateLog:   (cb) => ipcRenderer.on('ytdlp-update-log',   (_, d) => cb(d)),
-  onUpdaterStatus:    (cb) => ipcRenderer.on('updater-status',     (_, d) => cb(d)),
- 
-  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
+
+  // history persistence via electron-store (replaces localStorage)
+  saveHistory: (items) => ipcRenderer.invoke('save-history', items),
+  loadHistory: ()      => ipcRenderer.invoke('load-history'),
+
+  // yt-dlp management
+  checkYtDlp:      () => ipcRenderer.invoke('check-ytdlp'),
+  updateYtDlp:     () => ipcRenderer.invoke('update-ytdlp'),
+  checkForUpdates:         () => ipcRenderer.invoke('check-for-updates'),
+  updaterConfirmDownload:  () => ipcRenderer.invoke('updater-confirm-download'),
+  updaterConfirmInstall:   () => ipcRenderer.invoke('updater-confirm-install'),
+
+  // IPC event subscriptions
+  onDownloadProgress: (cb) => ipcRenderer.on('download-progress', (_, d) => cb(d)),
+  onDownloadComplete: (cb) => ipcRenderer.on('download-complete', (_, d) => cb(d)),
+  onDownloadFailed:   (cb) => ipcRenderer.on('download-failed',   (_, d) => cb(d)),
+  onDownloadError:    (cb) => ipcRenderer.on('download-error',    (_, d) => cb(d)),
+  onConsoleLog:       (cb) => ipcRenderer.on('console-log',       (_, d) => cb(d)),
+  onYtdlpUpdateLog:   (cb) => ipcRenderer.on('ytdlp-update-log',  (_, d) => cb(d)),
+  onUpdaterStatus:    (cb) => ipcRenderer.on('updater-status',    (_, d) => cb(d)),
+
+  // cleanup: called by App.jsx useEffect teardown
+  removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel),
 });

@@ -9,6 +9,9 @@ yarn-error.log*
 dist/                  
 out/                   
 
+# Renderer
+renderer/dist/
+
 # Binários externos (yt-dlp, ffmpeg) 
 bin/yt-dlp
 bin/yt-dlp.exe

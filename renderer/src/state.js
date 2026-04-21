@@ -1,0 +1,31 @@
+export const state = {
+  currentPage: 'downloader',
+  mode: 'video',
+  videoInfo: null,
+  selectedFormat: null,
+  audioFmt: 'mp3',
+  settings: {},
+  downloads: new Map(),
+  history: [],
+  downloadCounter: 0,
+  consoleLogs: [],
+  consoleOpen: false,
+  queue: [],
+  queueMap: new Map(),
+  queueRunning: false,
+  queueCounter: 0,
+};
+
+export const triggers = {
+  setPage: null,
+  setDownloads: null,
+  setQueue: null,
+  setHistory: null,
+  setConsoleLogs: null,
+  setConsoleOpen: null,
+  setQueueRunning: null,
+  setVideoInfo: null,
+  setMode: null,
+  setSettings: null,
+  setTitlebarSpeed: null,
+};
