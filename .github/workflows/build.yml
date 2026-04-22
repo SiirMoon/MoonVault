@@ -28,37 +28,84 @@ jobs:
       - name: Baixar yt-dlp (Windows)
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path bin
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path bin | Out-Null
           Invoke-WebRequest `
             -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" `
             -OutFile "bin\yt-dlp.exe"
           if (-not (Test-Path "bin\yt-dlp.exe") -or (Get-Item "bin\yt-dlp.exe").Length -eq 0) {
-            Write-Error "yt-dlp download failed or file is empty"
-            exit 1
+            throw "yt-dlp download failed or file is empty"
           }
 
-      - name: Instalar ffmpeg via Chocolatey (Windows)
+      - name: Baixar ffmpeg real (Windows)
         shell: pwsh
         run: |
-          choco install ffmpeg --no-progress -y
-          $src = (Get-Command ffmpeg).Source
-          Write-Host "ffmpeg found at: $src"
-          Copy-Item $src -Destination "bin\ffmpeg.exe"
-          if (-not (Test-Path "bin\ffmpeg.exe") -or (Get-Item "bin\ffmpeg.exe").Length -eq 0) {
-            Write-Error "ffmpeg copy failed or file is empty"
-            exit 1
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force -Path bin | Out-Null
+
+          $url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+          $zip = "ffmpeg.zip"
+          $tmp = "ffmpeg_tmp"
+          $maxAttempts = 3
+          $ok = $false
+
+          for ($i = 1; $i -le $maxAttempts; $i++) {
+            if (Test-Path $zip) { Remove-Item $zip -Force }
+            if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force }
+
+            try {
+              Invoke-WebRequest -Uri $url -OutFile $zip
+              if (-not (Test-Path $zip)) { throw "zip não foi criado" }
+
+              $zipSize = (Get-Item $zip).Length
+              if ($zipSize -lt 10000000) { throw "zip pequeno demais: $zipSize bytes" }
+
+              Expand-Archive -Path $zip -DestinationPath $tmp -Force
+
+              $ffmpeg = Get-ChildItem -Path $tmp -Recurse -Filter "ffmpeg.exe" |
+                Where-Object { $_.FullName -match "\\bin\\ffmpeg\.exe$" } |
+                Sort-Object Length -Descending |
+                Select-Object -First 1
+
+              if (-not $ffmpeg) { throw "ffmpeg.exe não encontrado após extração" }
+              if ($ffmpeg.Length -lt 1000000) { throw "ffmpeg.exe extraído inválido: $($ffmpeg.Length) bytes" }
+
+              Copy-Item $ffmpeg.FullName -Destination "bin\ffmpeg.exe" -Force
+
+              if (-not (Test-Path "bin\ffmpeg.exe")) { throw "bin\ffmpeg.exe não foi criado" }
+
+              $finalSize = (Get-Item "bin\ffmpeg.exe").Length
+              if ($finalSize -lt 1000000) { throw "bin\ffmpeg.exe inválido: $finalSize bytes" }
+
+              $ok = $true
+              break
+            } catch {
+              Write-Host "Tentativa $i falhou: $($_.Exception.Message)"
+              if ($i -eq $maxAttempts) { throw }
+              Start-Sleep -Seconds (5 * $i)
+            }
           }
-          Write-Host "bin\ffmpeg.exe size: $((Get-Item 'bin\ffmpeg.exe').Length) bytes"
+
+          if (-not $ok) { throw "Falha ao preparar ffmpeg.exe" }
+
+          Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item $zip -Force -ErrorAction SilentlyContinue
 
       - name: Verificar binários
         shell: pwsh
         run: |
-          Write-Host "=== bin/ contents ==="
+          $ErrorActionPreference = "Stop"
+
+          if (-not (Test-Path "bin\ffmpeg.exe")) { throw "ffmpeg.exe ausente" }
+          if (-not (Test-Path "bin\yt-dlp.exe")) { throw "yt-dlp.exe ausente" }
+
+          $ffmpegSize = (Get-Item "bin\ffmpeg.exe").Length
+          $ytDlpSize = (Get-Item "bin\yt-dlp.exe").Length
+
+          if ($ffmpegSize -lt 1000000) { throw "ffmpeg.exe parece corrompido (menor que 1 MB)" }
+          if ($ytDlpSize -lt 100000) { throw "yt-dlp.exe parece inválido" }
+
           Get-ChildItem bin | Format-Table Name, Length
-          if ((Get-Item "bin\ffmpeg.exe").Length -lt 1000000) {
-            Write-Error "ffmpeg.exe parece corrompido (menor que 1 MB)"
-            exit 1
-          }
 
       - name: Build Windows (installer + portable)
         env:
