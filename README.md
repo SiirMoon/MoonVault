@@ -41,6 +41,7 @@ Inspirado no yt-dlp-GUI: https://github.com/kannagi0303/yt-dlp-gui
 
 **Interface**
 - Modo escuro ([Catppuccin Mocha](https://github.com/catppuccin)) e claro ([Rosé Pine Dawn](https://github.com/rose-pine))
+  - Temas: AMOLED (Escuro total), [Nord (Dark/Light)](https://github.com/nordtheme/nord), [Everforest (Dark/Light)](https://github.com/sainnhe/everforest), [Tokyo Night (Dark/Light)](https://github.com/tokyo-night)
 - Moderna e leve, mas sem muita poluição
 
 **Downloads**
