@@ -52,11 +52,15 @@ function resolveBinary(name) {
   const candidates = [
     path.join(process.resourcesPath, 'bin', exe),
     path.join(process.resourcesPath, 'bin', name),
+    path.join(path.dirname(process.execPath), 'resources', 'bin', exe),
+    path.join(path.dirname(process.execPath), 'resources', 'bin', name),
     path.join(__dirname, 'bin', exe),
     path.join(__dirname, 'bin', name),
   ];
   for (const p of candidates) {
-    try { if (fs.existsSync(p)) { ensureExecutable(p); return p; } } catch {}
+    try {
+      if (fs.existsSync(p)) { ensureExecutable(p); return p; }
+    } catch {}
   }
   return null;
 }
@@ -172,7 +176,13 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 app.setAppUserModelId('MoonVault');
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  console.log('[bin] resourcesPath:', process.resourcesPath);
+  console.log('[bin] execPath dir: ', path.dirname(process.execPath));
+  console.log('[bin] ffmpeg path:  ', getFfmpegPath());
+  console.log('[bin] yt-dlp path:  ', getYtDlpPath());
+  createWindow();
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 

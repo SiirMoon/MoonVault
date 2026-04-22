@@ -25,16 +25,40 @@ jobs:
       - name: Compilar renderer React
         run: npm run build:renderer
 
-      - name: Baixar yt-dlp e ffmpeg (Windows)
+      - name: Baixar yt-dlp (Windows)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path bin
-          Invoke-WebRequest -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" -OutFile "bin\yt-dlp.exe"
-          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile "ffmpeg.zip"
-          Expand-Archive -Path "ffmpeg.zip" -DestinationPath "ffmpeg_tmp" -Force
-          $ffmpeg = Get-ChildItem -Path "ffmpeg_tmp" -Recurse -Filter "ffmpeg.exe" | Select-Object -First 1
-          Copy-Item $ffmpeg.FullName -Destination "bin\ffmpeg.exe"
-          Remove-Item -Recurse -Force "ffmpeg_tmp", "ffmpeg.zip"
+          Invoke-WebRequest `
+            -Uri "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe" `
+            -OutFile "bin\yt-dlp.exe"
+          if (-not (Test-Path "bin\yt-dlp.exe") -or (Get-Item "bin\yt-dlp.exe").Length -eq 0) {
+            Write-Error "yt-dlp download failed or file is empty"
+            exit 1
+          }
+
+      - name: Instalar ffmpeg via Chocolatey (Windows)
+        shell: pwsh
+        run: |
+          choco install ffmpeg --no-progress -y
+          $src = (Get-Command ffmpeg).Source
+          Write-Host "ffmpeg found at: $src"
+          Copy-Item $src -Destination "bin\ffmpeg.exe"
+          if (-not (Test-Path "bin\ffmpeg.exe") -or (Get-Item "bin\ffmpeg.exe").Length -eq 0) {
+            Write-Error "ffmpeg copy failed or file is empty"
+            exit 1
+          }
+          Write-Host "bin\ffmpeg.exe size: $((Get-Item 'bin\ffmpeg.exe').Length) bytes"
+
+      - name: Verificar binários
+        shell: pwsh
+        run: |
+          Write-Host "=== bin/ contents ==="
+          Get-ChildItem bin | Format-Table Name, Length
+          if ((Get-Item "bin\ffmpeg.exe").Length -lt 1000000) {
+            Write-Error "ffmpeg.exe parece corrompido (menor que 1 MB)"
+            exit 1
+          }
 
       - name: Build Windows (installer + portable)
         env:
@@ -62,11 +86,18 @@ jobs:
       - name: Baixar yt-dlp e instalar ffmpeg (Linux)
         run: |
           mkdir -p bin
-          curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o bin/yt-dlp
+          curl -fL https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o bin/yt-dlp
           chmod +x bin/yt-dlp
           sudo apt-get install -y ffmpeg
           cp $(which ffmpeg) bin/ffmpeg
           chmod +x bin/ffmpeg
+
+      - name: Verificar binários
+        run: |
+          echo "=== bin/ contents ==="
+          ls -lh bin/
+          [ -s bin/ffmpeg ] || (echo "ffmpeg is missing or empty" && exit 1)
+          [ -s bin/yt-dlp  ] || (echo "yt-dlp is missing or empty" && exit 1)
 
       - name: Build Linux AppImage
         env:
