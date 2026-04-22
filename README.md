@@ -30,7 +30,7 @@ Inspirado no yt-dlp-GUI: https://github.com/kannagi0303/yt-dlp-gui
 
 | AMOLED | Everforest |
 |---------|---------|
-| ![Downloader](screenshots/MoonVault_amoled.png) | ![Downloader](screenshots/MoonVault_everforest.png) |
+| ![Downloader](screenshots/MoonVault_amoled.png) | ![Downloader](screenshots/MoonVault_Everforest.png) |
 | Nord | Tokyo Night |
 | ![Downloader](screenshots/MoonVault_nord.png) | ![Downloader](screenshots/MoonVault_Tokyo.png) |
 
