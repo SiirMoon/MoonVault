@@ -24,6 +24,18 @@ Inspirado no yt-dlp-GUI: https://github.com/kannagi0303/yt-dlp-gui
 | ![Downloader](screenshots/MoonVault_Downloader.png) | ![Fila](screenshots/MoonVault_Fila.png) |
 | Screenshot Downloader (Light Mode) | Screenshot Fila (Light Mode) |
 | ![Downloader](screenshots/MoonVault_Downloader_Light.png) | ![Fila](screenshots/MoonVault_Fila_Light.png) |
+
+<details>
+<summary>Screenshots Temas</summary>
+
+| AMOLED | Everforest |
+|---------|---------|
+| ![Downloader](screenshots/MoonVault_amoled.png) | ![Downloader](screenshots/MoonVault_everforest.png) |
+| Nord | Tokyo Night |
+| ![Downloader](screenshots/MoonVault_nord.png) | ![Downloader](screenshots/MoonVault_Tokyo.png) |
+
+</details>
+
 ---
 ## Funcionalidades
 
